@@ -75,22 +75,20 @@ function App() {
         onClick={onAddTask}
         className="text-xs text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center mr-2 mb-2">Add Task</button>
       <div className="tasks grid grid-cols-1 gap-3 mt-3">
-        {tasks.allIds.length > 0 &&
+        {tasks?.allIds.length > 0 &&
           <h4>Tasks</h4>}
-        {tasks.allIds.map((taskId: any) => {
+        {tasks?.allIds.map((taskId: any) => {
           const task = tasks.byId[taskId];
-          return <>
-            <div className="card p-4 bg-white shadow w-full">
-              <input type="checkbox" className="default:ring-2 mr-2" />
+          return <div className="card p-4 bg-white shadow w-full" key={taskId}>
+            <input type="checkbox" className="default:ring-2 mr-2" />
 
-              <h4 className='inline'>{task.task}</h4>
+            <h4 className='inline'>{task.task}</h4>
 
-              <button className='float-right hover:text-red-400' onClick={() => onDeleteTask(task.id)}>
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg></button>
-            </div>
-          </>
+            <button className='float-right hover:text-red-400' onClick={() => onDeleteTask(task.id)}>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg></button>
+          </div>
         })}
       </div>
 

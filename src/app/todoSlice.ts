@@ -10,11 +10,13 @@ const initialState: any = {
 
 const fetchTasks = () => {
     const tasks: any = localStorage.getItem('tasks');
+    if (!tasks) return [];
     return JSON.parse(tasks);
 }
 
 const updateTaskDB = (tasks) => {
-    localStorage.setItem('tasks', JSON.stringify(tasks))
+    const tasksArray = arrayFromObj(tasks);
+    localStorage.setItem('tasks', JSON.stringify(tasksArray))
 }
 
 const slice = createSlice({
@@ -24,32 +26,25 @@ const slice = createSlice({
 
         getTasksSuccess(state, action) {
             const tasks = action.payload;
-            // const byId = objFromArray(tasks);
-            // const allIds = keyArrayFromArray(tasks);
-            // state.tasks = { byId, allIds };
-            state.tasks = tasks;
+            const byId = objFromArray(tasks);
+            const allIds = keyArrayFromArray(tasks);
+            state.tasks = { byId, allIds };
         },
 
         addTaskSuccess(state, action) {
             const task = action.payload;
             state.tasks.byId[task.id] = task;
             state.tasks.allIds.push(task.id);
-            //localstorage db
-            updateTaskDB(state.tasks);
         },
 
         removeTaskSuccess(state, action) {
             const taskId = action.payload;
             state.tasks.allIds = state.tasks.allIds.filter((id: any) => id !== taskId);
             state.tasks.byId = omit(state.tasks.byId, [taskId]);
-            //localstorage db
-            updateTaskDB(state.tasks);
         },
         updateTask(state, action) {
             const task = action.payload;
             state.board.byId[task.id] = task;
-            //localstorage db
-            updateTaskDB(state.tasks);
         }
     }
 });
@@ -58,21 +53,28 @@ const slice = createSlice({
 export default slice.reducer;
 
 export function getTasks() {
-    return async (dispatch, getState) => {
+    return async (dispatch: any, getState: any) => {
         const tasks = fetchTasks();
         dispatch(slice.actions.getTasksSuccess(tasks));
     }
 }
 
+
 export function addTask(task) {
     return async (dispatch, getState) => {
         dispatch(slice.actions.addTaskSuccess(task));
+        const tasks = getState().todo.tasks.byId;
+        //localstorage db
+        updateTaskDB(tasks);
     }
 }
 
 export function updateTask(task) {
     return async (dispatch, getState) => {
         dispatch(slice.actions.updateTask(task));
+        const tasks = getState().todo.tasks.byId;
+        //localstorage db
+        updateTaskDB(tasks);
     }
 }
 
@@ -80,5 +82,30 @@ export function updateTask(task) {
 export function deleteTask(taskId) {
     return async (dispatch, getState) => {
         dispatch(slice.actions.removeTaskSuccess(taskId));
+        const tasks = getState().todo.tasks.byId;
+        //localstorage db
+        updateTaskDB(tasks);
     }
+}
+
+function arrayFromObj(obj, defaultKey = "id") {
+    const array = <any>[];
+    for (const key in obj) {
+        array.push(obj[key]);
+    }
+    return array;
+}
+
+function objFromArray(array, key = 'id') {
+    return array.reduce((accumulator, current) => {
+        accumulator[current[key]] = current;
+        return accumulator;
+    }, {});
+}
+
+function keyArrayFromArray(array, key = 'id') {
+    return array.reduce((accumulator, current) => {
+        accumulator.push(current[key])
+        return accumulator;
+    }, []);
 }
